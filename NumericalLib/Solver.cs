@@ -21,20 +21,14 @@ namespace NumericalLib {
       }
     }
 
-    public static void Euler(NumericalModelWithODE model)
-      => SolveAndPrint(NumericalMethod.Euler, model, Console.Out);
-    public static void Euler(NumericalModelWithODE model, TextWriter file)
-      => SolveAndPrint(NumericalMethod.Euler, model, file);
+    public static void Euler(NumericalModelWithODE model, TextWriter file = null, char delimiter = ' ')
+      => SolveAndPrint(NumericalMethod.Euler, model, file ?? Console.Out, delimiter);
 
-    public static void Heun(NumericalModelWithODE model)
-      => SolveAndPrint(NumericalMethod.Heun, model, Console.Out);
-    public static void Heun(NumericalModelWithODE model, TextWriter file)
-      => SolveAndPrint(NumericalMethod.Heun, model, file);
+    public static void Heun(NumericalModelWithODE model, TextWriter file = null, char delimiter = ' ')
+      => SolveAndPrint(NumericalMethod.Heun, model, file ?? Console.Out, delimiter);
 
-    public static void Rk4(NumericalModelWithODE model)
-      => SolveAndPrint(NumericalMethod.Rk4, model, Console.Out);
-    public static void Rk4(NumericalModelWithODE model, TextWriter file)
-      => SolveAndPrint(NumericalMethod.Rk4, model, file);
+    public static void Rk4(NumericalModelWithODE model, TextWriter file = null, char delimiter = ' ')
+      => SolveAndPrint(NumericalMethod.Rk4, model, file ?? Console.Out, delimiter);
 
     private delegate Vector UpdateFunction(NumericalModelWithODE model, double t, Vector x);
     
@@ -54,21 +48,22 @@ namespace NumericalLib {
       var k4 = model.Function(t + _delta, x + _delta * k3);
       return (k1 + 2.0 * k2 + 2.0 * k3 + k4) * _delta * Frac6;
     }
-    
-    private static void SolveAndPrint(NumericalMethod method, NumericalModelWithODE model, TextWriter file) {
-      var t = model.TimeStart;
+
+    private static void SolveAndPrint(NumericalMethod method, NumericalModelWithODE model,
+                                      TextWriter file, char delimiter = ' ') {
+      var t  = model.TimeStart;
       var te = model.TimeEnd;
-      var x = model.InitialValues;
+      var x  = model.InitialValues;
 
-      UpdateFunction updFunc = EulerUpdate;
+      UpdateFunction updFunc                      = EulerUpdate;
       if (method == NumericalMethod.Heun) updFunc = HeunUpdate;
-      if (method == NumericalMethod.Rk4)  updFunc = Rk4Update;
+      if (method == NumericalMethod.Rk4) updFunc  = Rk4Update;
 
-      file.WriteLine($"{t} {x}");
+      file.WriteLine($"{t}{delimiter}{x.ToString(delimiter)}");
       while (t + _delta <= te) {
         x += updFunc(model, t, x);
         t += _delta;
-        file.WriteLine($"{t} {x}");
+        file.WriteLine($"{t}{delimiter}{x.ToString(delimiter)}");
       }
     }
   }
