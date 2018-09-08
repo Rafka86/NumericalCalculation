@@ -20,6 +20,7 @@
 **/.idea/**/contentModel.xml
 **/.idea/**/modules.xml
 
+*.csv
 *.suo
 *.user
 .vs/
