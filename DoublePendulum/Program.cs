@@ -1,18 +1,14 @@
-﻿using System.Diagnostics;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
-using System.Numerics;
 
 using NumericalLib;
 
 using static System.Math;
 
-using Vector = NumericalLib.Vector;
-
 namespace DoublePendulum {
 
   internal class Program {
-    private class DoublePendulum : OdeModel<double> {
+    private class DoublePendulum : OdeModel {
       private const double G = 9.80665;
 
       private const double M1 = 1.0;
@@ -25,11 +21,11 @@ namespace DoublePendulum {
         : base(theta1 * PI / 180.0, theta2 * PI / 180.0, 0.0, 0.0)
           => TimeEnd = 60.0;
       
-      public override Vector<double> Function(double t, Vector<double> x) {
+      public override Vector Function(double t, Vector x) {
         var sin = Sin(x[0] - x[1]);
         var cos = Cos(x[0] - x[1]);
 
-        return new Vector<double>(new [] {x[2], x[3], DTheta1(), DTheta2()});
+        return new Vector(x[2], x[3], DTheta1(), DTheta2());
         
         double DTheta1()
           => (G * (Sin(x[1]) * cos - M12 / M2 * Sin(x[0])) - (L1 * x[2] * x[2] * cos + L2 * x[3] * x[3]) * sin) /
@@ -42,14 +38,14 @@ namespace DoublePendulum {
       }
     }
     static void Main() {
-      Solver<double>.Delta = 0.015625;
+      Solver.Delta = 0.015625;
       var model = new DoublePendulum();
-      using (var sw = new StreamWriter("dp.csv")) Solver<double>.Rk4(model, sw, ",");
+      using (var sw = new StreamWriter("dp.csv")) Solver.Rk4(model, sw, ',');
       using (var sr = new StreamReader("dp.csv"))
       using (var sw = new StreamWriter("dp_c.csv"))
         ConvertToPositions(sr, sw);
 
-      void ConvertToPositions(StreamReader input, StreamWriter output) {
+      void ConvertToPositions(StreamReader input, TextWriter output) {
         const double l1 = DoublePendulum.L1;
         const double l2 = DoublePendulum.L2;
         var sin = Sin(-0.5 * PI);
